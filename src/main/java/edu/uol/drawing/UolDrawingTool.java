@@ -28,10 +28,6 @@ import javax.swing.JColorChooser;
 import edu.uol.drawing.shapes.ClosedShape;
 import edu.uol.drawing.shapes.FillColorable;
 import edu.uol.drawing.shapes.OpenedShape;
-import edu.uol.drawing.shapes.OurArc;
-import edu.uol.drawing.shapes.OurLine;
-import edu.uol.drawing.shapes.OurRectangle;
-import edu.uol.drawing.shapes.OurRoundRectangle;
 import edu.uol.drawing.shapes.OurShape;
 import edu.uol.drawing.shapes.OutlineColorable;
 import edu.uol.drawing.shapes.Selectable;
@@ -74,10 +70,10 @@ public class UolDrawingTool extends Frame {
 		colors.add(new MenuItem(SET_OUTLINE_COLOR_MENU_LABEL)).addActionListener(new WindowHandler());
 		colors.add(new MenuItem(SET_FILL_COLOR_MENU_LABEL)).addActionListener(new WindowHandler());
 
-		shape.add(new MenuItem(OurLine.class.getSimpleName())).addActionListener(new WindowHandler());
-		shape.add(new MenuItem(OurArc.class.getSimpleName())).addActionListener(new WindowHandler());
-		shape.add(new MenuItem(OurRectangle.class.getSimpleName())).addActionListener(new WindowHandler());
-		shape.add(new MenuItem(OurRoundRectangle.class.getSimpleName())).addActionListener(new WindowHandler());
+		shape.add(new MenuItem("OurLine")).addActionListener(new WindowHandler());
+		shape.add(new MenuItem("OurArc")).addActionListener(new WindowHandler());
+		shape.add(new MenuItem("OurRectangle")).addActionListener(new WindowHandler());
+		shape.add(new MenuItem("OurRoundRectangle")).addActionListener(new WindowHandler());
 
 		menuBar.add(file);
 		menuBar.add(colors);
@@ -181,9 +177,7 @@ class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 			OurShape ourShape = (OurShape) iterator.next();
 			ourShape.drawIt(g);
 		}
-		if (currentShape != null) {
-			currentShape.updateSize(g, lastDraggedPoint);
-		}
+
 	}
 
 	OurShape currentShape = null;
@@ -229,6 +223,7 @@ class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 		if (!startedDrawing && currentShape != null) {
 			startedDrawing = true;
 			startingPoint = e.getPoint();
+
 			currentShape.startingPoint(e.getPoint());
 		}
 	}// mousePressed
@@ -251,6 +246,9 @@ class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 		if (startedDrawing && currentShape != null) {
 			if (lastDraggedPoint == null || e.getPoint().distance(lastDraggedPoint) > MIN_DISTANCE_TO_REDRAW) {
 				lastDraggedPoint = e.getPoint();
+				if (currentShape != null) {
+					currentShape.updateSize(lastDraggedPoint);
+				}
 				// TODO repaint only the boundary of the current shape
 				repaint();// watch out, repaint is done in separate thread
 

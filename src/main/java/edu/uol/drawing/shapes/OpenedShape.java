@@ -24,9 +24,8 @@ public abstract class OpenedShape implements OurShape, OutlineColorable {
 	}
 
 	@Override
-	public void updateSize(Graphics g, Point to) {
+	public void updateSize(Point to) {
 		this.to = to;
-		drawIt(g);
 	}
 
 	public abstract void drawIt(Graphics g);

@@ -23,9 +23,8 @@ public abstract class ClosedShape implements OurShape, OutlineColorable, FillCol
 	}
 
 	@Override
-	public void updateSize(Graphics g, Point point) {
+	public void updateSize(Point point) {
 		this.to = point;
-		drawIt(g);
 	}
 
 	@Override
