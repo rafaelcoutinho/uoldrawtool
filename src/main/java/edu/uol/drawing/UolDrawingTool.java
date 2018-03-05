@@ -25,9 +25,8 @@ import java.util.List;
 
 import javax.swing.JColorChooser;
 
-import edu.uol.drawing.shapes.ClosedShape;
+import edu.uol.drawing.ShapeFactory.ShapeTypes;
 import edu.uol.drawing.shapes.FillColorable;
-import edu.uol.drawing.shapes.OpenedShape;
 import edu.uol.drawing.shapes.OurShape;
 import edu.uol.drawing.shapes.OutlineColorable;
 import edu.uol.drawing.shapes.Selectable;
@@ -69,11 +68,9 @@ public class UolDrawingTool extends Frame {
 		file.add(new MenuItem(EXIT_MENU_LABEL)).addActionListener(new WindowHandler());
 		colors.add(new MenuItem(SET_OUTLINE_COLOR_MENU_LABEL)).addActionListener(new WindowHandler());
 		colors.add(new MenuItem(SET_FILL_COLOR_MENU_LABEL)).addActionListener(new WindowHandler());
-
-		shape.add(new MenuItem("OurLine")).addActionListener(new WindowHandler());
-		shape.add(new MenuItem("OurArc")).addActionListener(new WindowHandler());
-		shape.add(new MenuItem("OurRectangle")).addActionListener(new WindowHandler());
-		shape.add(new MenuItem("OurRoundRectangle")).addActionListener(new WindowHandler());
+		for (int i = 0; i < ShapeTypes.values().length; i++) {
+			shape.add(new MenuItem(ShapeTypes.values()[i].name())).addActionListener(new WindowHandler());
+		}
 
 		menuBar.add(file);
 		menuBar.add(colors);
@@ -126,23 +123,10 @@ public class UolDrawingTool extends Frame {
 
 				String classSimpleName = e.getActionCommand();
 
-				Class shapeClass = null;
 				try {
-					shapeClass = Class.forName("edu.uol.drawing.shapes." + classSimpleName);
+					OurShape shape = ShapeFactory.getInstance(ShapeTypes.valueOf(classSimpleName), outlineColor,
+							fillColor);
 
-					OurShape shape = null;
-					if (OpenedShape.class.isAssignableFrom(shapeClass)) {// checks if shape class is subclass of
-																			// open
-																			// shape
-
-						shape = (OurShape) shapeClass.getConstructor(Color.class).newInstance(outlineColor);
-
-					} else if (ClosedShape.class.isAssignableFrom(shapeClass)) {
-						shape = (OurShape) shapeClass.getConstructor(Color.class, Color.class).newInstance(outlineColor,
-								fillColor);
-					} else {
-						// TODO show error
-					}
 					panel.startDrawing(shape);
 					if (shape instanceof OutlineColorable) {
 						((OutlineColorable) shape).setOutlineColor(outlineColor);
@@ -151,9 +135,6 @@ public class UolDrawingTool extends Frame {
 						((FillColorable) shape).setFillColor(fillColor);
 					}
 
-				} catch (ClassNotFoundException e1) {
-					e1.printStackTrace();
-					// TODO show error
 				} catch (Exception e1) {
 					e1.printStackTrace();
 
