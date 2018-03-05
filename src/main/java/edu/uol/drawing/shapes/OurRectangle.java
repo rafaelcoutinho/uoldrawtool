@@ -3,68 +3,21 @@ package edu.uol.drawing.shapes;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.Shape;
 
-public class OurRectangle implements OurShape, OutlineColorable, FillColorable {
+public class OurRectangle extends ClosedShape {
 
-	private Color fill;
-	private Color outline;
-
-	public OurRectangle() {
+	public OurRectangle(Color outline, Color fillcolor) {
+		super(outline, fillcolor);
 	}
 
-	@Override
-	public void setFillColor(Color c) {
-		this.fill = c;
-	}
-
-	@Override
-	public Color getFillColor() {
-		return fill;
-	}
-
-	@Override
-	public void setOutlineColor(Color c) {
-		this.outline = c;
-	}
-
-	@Override
-	public Color getOutlineColor() {
-		return outline;
-	}
-
-	@Override
-	public int getMinNumberOfPoints() {
-		return 4;
-	}
-
-	@Override
-	public int getMaxNumberOfPoints() {
-		return 4;
-	}
-
-	@Override
-	public void drawIt(Graphics g) {
-		// TODO Auto-generated method stub
+	protected void drawFilledshape(Graphics g, Point topLeft, int width, int height) {
+		g.fillRect(topLeft.x, topLeft.y, width, height);
 
 	}
 
-	@Override
-	public void startingPoint(Point point) {
-		// TODO Auto-generated method stub
-		
-	}
+	protected void drawOutline(Graphics g, Point topLeft, int width, int height) {
+		g.drawRect(topLeft.x, topLeft.y, width, height);
 
-	@Override
-	public void updateSize(Point point) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void packShape(Point point) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

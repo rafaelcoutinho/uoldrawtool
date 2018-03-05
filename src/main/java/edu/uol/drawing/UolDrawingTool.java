@@ -18,16 +18,23 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.RectangularShape;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JColorChooser;
 
+import edu.uol.drawing.shapes.ClosedShape;
 import edu.uol.drawing.shapes.FillColorable;
+import edu.uol.drawing.shapes.OpenedShape;
+import edu.uol.drawing.shapes.OurArc;
 import edu.uol.drawing.shapes.OurLine;
+import edu.uol.drawing.shapes.OurRectangle;
+import edu.uol.drawing.shapes.OurRoundRectangle;
 import edu.uol.drawing.shapes.OurShape;
 import edu.uol.drawing.shapes.OutlineColorable;
+import edu.uol.drawing.shapes.Selectable;
 
 public class UolDrawingTool extends Frame {
 
@@ -68,6 +75,9 @@ public class UolDrawingTool extends Frame {
 		colors.add(new MenuItem(SET_FILL_COLOR_MENU_LABEL)).addActionListener(new WindowHandler());
 
 		shape.add(new MenuItem(OurLine.class.getSimpleName())).addActionListener(new WindowHandler());
+		shape.add(new MenuItem(OurArc.class.getSimpleName())).addActionListener(new WindowHandler());
+		shape.add(new MenuItem(OurRectangle.class.getSimpleName())).addActionListener(new WindowHandler());
+		shape.add(new MenuItem(OurRoundRectangle.class.getSimpleName())).addActionListener(new WindowHandler());
 
 		menuBar.add(file);
 		menuBar.add(colors);
@@ -103,17 +113,7 @@ public class UolDrawingTool extends Frame {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			if (OurLine.class.getSimpleName().equals(e.getActionCommand())) {
-				OurShape shape = new OurLine(panel.getGraphics());
-				if (shape instanceof OutlineColorable) {
-					((OutlineColorable) shape).setOutlineColor(outlineColor);
-				}
-				if (shape instanceof FillColorable) {
-					((FillColorable) shape).setFillColor(fillColor);
-				}
-				panel.startDrawing(shape);
-				return;
-			} else if (EXIT_MENU_LABEL.equals(e.getActionCommand())) {
+			if (EXIT_MENU_LABEL.equals(e.getActionCommand())) {
 				System.exit(0);
 			} else if (SET_FILL_COLOR_MENU_LABEL.equals(e.getActionCommand())) {
 				Color newColor = JColorChooser.showDialog(panel, "Choose Fill Color", fillColor);
@@ -126,8 +126,44 @@ public class UolDrawingTool extends Frame {
 					outlineColor = newColor;
 					System.out.println(outlineColor.toString());
 				}
-			}
+			} else {
 
+				String classSimpleName = e.getActionCommand();
+
+				Class shapeClass = null;
+				try {
+					shapeClass = Class.forName("edu.uol.drawing.shapes." + classSimpleName);
+
+					OurShape shape = null;
+					if (OpenedShape.class.isAssignableFrom(shapeClass)) {// checks if shape class is subclass of
+																			// open
+																			// shape
+
+						shape = (OurShape) shapeClass.getConstructor(Color.class).newInstance(outlineColor);
+
+					} else if (ClosedShape.class.isAssignableFrom(shapeClass)) {
+						shape = (OurShape) shapeClass.getConstructor(Color.class, Color.class).newInstance(outlineColor,
+								fillColor);
+					} else {
+						// TODO show error
+					}
+					panel.startDrawing(shape);
+					if (shape instanceof OutlineColorable) {
+						((OutlineColorable) shape).setOutlineColor(outlineColor);
+					}
+					if (shape instanceof FillColorable) {
+						((FillColorable) shape).setFillColor(fillColor);
+					}
+
+				} catch (ClassNotFoundException e1) {
+					e1.printStackTrace();
+					// TODO show error
+				} catch (Exception e1) {
+					e1.printStackTrace();
+
+				}
+
+			}
 		}
 	}
 }
@@ -146,7 +182,7 @@ class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 			ourShape.drawIt(g);
 		}
 		if (currentShape != null) {
-			currentShape.updateSize(lastDraggedPoint);
+			currentShape.updateSize(g, lastDraggedPoint);
 		}
 	}
 
@@ -159,15 +195,26 @@ class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 
 	// define mouse handler
 	public void mouseClicked(MouseEvent e) {
-		// if (currentShape != null) {
-		// currentShape.addPoint(e.getPoint());
-		// if (currentShape.isComplete()) {
-		// drawedShapes.add(currentShape);
-		// currentShape = null;
-		// repaint();
-		// }
-		//
-		// }
+		if (currentShape == null) {
+			OurShape toDelete = null;
+			for (Iterator iterator = drawedShapes.iterator(); iterator.hasNext();) {
+				OurShape ourShape = (OurShape) iterator.next();
+				if (ourShape instanceof Selectable) {
+					if (((Selectable) ourShape).getBounds().contains(e.getPoint())) {
+						toDelete = ourShape;
+						break;
+					}
+				}
+			}
+			if (toDelete != null) {
+				// TODO Damian please put a confirm option here.
+				boolean a = drawedShapes.remove(toDelete);
+				RectangularShape bounds = ((Selectable) toDelete).getBounds();
+				repaint((int) bounds.getX(), (int) bounds.getY(), (int) bounds.getWidth() + 1,
+						(int) bounds.getHeight() + 1);
+			}
+
+		}
 	}// mouseClicked
 
 	public void mouseEntered(MouseEvent e) {
@@ -189,7 +236,6 @@ class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 	public void mouseReleased(MouseEvent e) {
 		if (startedDrawing) {
 			startedDrawing = false;
-			currentShape.packShape(e.getPoint());
 			drawedShapes.add(currentShape);
 			repaint();
 			currentShape = null;
