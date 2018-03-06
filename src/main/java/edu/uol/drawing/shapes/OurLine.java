@@ -2,6 +2,7 @@ package edu.uol.drawing.shapes;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.geom.RectangularShape;
 
 public class OurLine extends OpenedShape {
 
@@ -14,5 +15,4 @@ public class OurLine extends OpenedShape {
 		setColors(g);
 		g.drawLine(from.x, from.y, to.x, to.y);
 	}
-
 }
