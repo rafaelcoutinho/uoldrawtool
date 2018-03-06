@@ -1,37 +1,14 @@
 
 package edu.uol.drawing;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.Insets;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
-import java.awt.Panel;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
+
 import java.awt.geom.RectangularShape;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JColorChooser;
-import javax.swing.JFrame;
-import javax.swing.JRadioButton;
-import javax.swing.JToolBar;
+import javax.swing.*;
 
 import edu.uol.drawing.ShapeFactory.ShapeTypes;
 import edu.uol.drawing.shapes.FillColorable;
@@ -52,7 +29,6 @@ public class UolDrawingTool extends JFrame {
 	private DrawingPanel panel;
 	private Color fillColor = Color.GREEN;
 	private Color outlineColor = Color.BLACK;
-	
 	
 	
 	private JButton fillColorButton;
@@ -109,8 +85,7 @@ public class UolDrawingTool extends JFrame {
 		
 		colorToolBar = new JToolBar();
 		
-		for (int i = 0; i < ShapeTypes.values().length; i++) {		
-			
+		for (int i = 0; i < ShapeTypes.values().length; i++) {				
 			
 			JRadioButton j1 = new JRadioButton(ShapeTypes.values()[i].name());
 			j1.addActionListener(new WindowHandler());
@@ -250,26 +225,7 @@ class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 
 	// define mouse handler
 	public void mouseClicked(MouseEvent e) {
-		if (currentShape == null) {
-			OurShape toDelete = null;
-			for (Iterator iterator = drawedShapes.iterator(); iterator.hasNext();) {
-				OurShape ourShape = (OurShape) iterator.next();
-				if (ourShape instanceof Selectable) {
-					if (((Selectable) ourShape).getBounds().contains(e.getPoint())) {
-						toDelete = ourShape;
-						break;
-					}
-				}
-			}
-			if (toDelete != null) {
-				// TODO Damian please put a confirm option here.
-				boolean a = drawedShapes.remove(toDelete);
-				RectangularShape bounds = ((Selectable) toDelete).getBounds();
-				repaint((int) bounds.getX(), (int) bounds.getY(), (int) bounds.getWidth() + 1,
-						(int) bounds.getHeight() + 1);
-			}
-
-		}
+		
 	}// mouseClicked
 
 	public void mouseEntered(MouseEvent e) {
