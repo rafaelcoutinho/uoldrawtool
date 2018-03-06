@@ -200,6 +200,17 @@ public class UolDrawingTool extends JFrame {
 	}
 }
 
+
+class PopUpMenu extends JPopupMenu {
+	JMenuItem deleteMenuItem;
+	
+	public PopUpMenu() {
+		deleteMenuItem = new JMenuItem("Delete Shape");
+		deleteMenuItem.addMouseListener(new DrawingPanel());
+		add(deleteMenuItem);
+	}
+}
+
 class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 
 	private static final int MIN_DISTANCE_TO_REDRAW = 5;
@@ -223,9 +234,33 @@ class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 
 	}
 
+	
+	
 	// define mouse handler
 	public void mouseClicked(MouseEvent e) {
-		
+		if (currentShape == null) {
+			OurShape toDelete = null;
+			for (Iterator iterator = drawedShapes.iterator(); iterator.hasNext();) {
+				OurShape ourShape = (OurShape) iterator.next();
+				if (ourShape instanceof Selectable) {
+					if (((Selectable) ourShape).getBounds().contains(e.getPoint())) {
+						toDelete = ourShape;
+						break;
+					}
+				}
+			}
+			if (toDelete != null) {
+				
+				if (JOptionPane.showOptionDialog(null, "Delete this shape?", "Delete Shape", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null) != 1) {
+					boolean a = drawedShapes.remove(toDelete);
+					RectangularShape bounds = ((Selectable) toDelete).getBounds();
+					repaint((int) bounds.getX(), (int) bounds.getY(), (int) bounds.getWidth() + 1,
+							(int) bounds.getHeight() + 1);
+				}				
+				
+			}
+
+		}
 	}// mouseClicked
 
 	public void mouseEntered(MouseEvent e) {
