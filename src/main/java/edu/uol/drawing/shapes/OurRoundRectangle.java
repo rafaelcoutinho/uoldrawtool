@@ -6,7 +6,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.RectangularShape;
 
-public class OurRoundRectangle extends ClosedShape implements Selectable {
+public class OurRoundRectangle extends ClosedShape implements Selectable, Erasable {
 
 	public OurRoundRectangle(Color outline, Color fillcolor) {
 		super(outline, fillcolor);
