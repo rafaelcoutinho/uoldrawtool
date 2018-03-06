@@ -224,6 +224,9 @@ class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 			OurShape ourShape = (OurShape) iterator.next();
 			ourShape.drawIt(g);
 		}
+		if(currentShape!=null) {
+			currentShape.drawIt(g);
+		}
 
 	}
 
