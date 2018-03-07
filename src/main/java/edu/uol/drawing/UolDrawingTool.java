@@ -40,6 +40,7 @@ import edu.uol.drawing.shapes.Erasable;
 import edu.uol.drawing.shapes.FillColorable;
 import edu.uol.drawing.shapes.OurShape;
 import edu.uol.drawing.shapes.OutlineColorable;
+import edu.uol.drawing.shapes.Rotatable;
 import edu.uol.drawing.shapes.Selectable;
 
 public class UolDrawingTool extends JFrame {
@@ -91,7 +92,6 @@ public class UolDrawingTool extends JFrame {
 
 	private void setOutlineColor(Color color) {
 		this.outlineColor = color;
-
 		outlineColorButton.setBackground(color);
 	}
 
@@ -119,8 +119,8 @@ public class UolDrawingTool extends JFrame {
 		}
 
 		// set default colors.
-		setFillColor(Color.RED);
-		setOutlineColor(Color.BLACK);
+		setFillColor(fillColor);
+		setOutlineColor(outlineColor);
 
 		colorToolBar.add(fillColorButton);
 		colorToolBar.add(outlineColorButton);
@@ -171,6 +171,8 @@ public class UolDrawingTool extends JFrame {
 		panel.setSize(d);
 		panel.setLocation(ins.left, ins.top);
 		panel.setBackground(Color.white);
+		panel.setCurrentOutlineColor(outlineColor);
+		panel.setCurrentFillColor(fillColor);
 		// add mouse listener. Panel itself will be handling mouse events
 		panel.addMouseListener(panel);
 		panel.addMouseMotionListener(panel);
@@ -190,12 +192,13 @@ public class UolDrawingTool extends JFrame {
 				Color newColor = JColorChooser.showDialog(panel, "Choose Fill Color", fillColor);
 				if (newColor != null) {
 					setFillColor(newColor);
+					panel.setCurrentFillColor(newColor);
 				}
 			} else if (SET_OUTLINE_COLOR_MENU_LABEL.equals(e.getActionCommand())) {
 				Color newColor = JColorChooser.showDialog(panel, "Choose Outline Color", outlineColor);
 				if (newColor != null) {
 					setOutlineColor(newColor);
-					System.out.println(outlineColor.toString());
+					panel.setCurrentOutlineColor(newColor);
 				}
 			} else {
 
@@ -223,46 +226,71 @@ public class UolDrawingTool extends JFrame {
 	}
 }
 
-class PopUpMenu extends JPopupMenu {
-	JMenuItem deleteMenuItem;
-
-	public PopUpMenu() {
-		deleteMenuItem = new JMenuItem("Delete Shape");
-		deleteMenuItem.addMouseListener(new DrawingPanel());
-		add(deleteMenuItem);
-	}
-}
-
 class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
+	private static final String UPDATE_FILL_COLOR = "Update fill color";
+	private static final String UPDATE_OUTLINE_COLOR = "Update outline color";
+	private static final String ROTATE_CLOCKWISE = "Rotate clockwise";
 	private static final String DELETE_SHAPE = "Delete shape";
-	public JPopupMenu popup;
-	JMenuItem deleteitem;
-	OurShape selected;
+	private Color currentOutlineColor;
+	private Color currentFillColor;
+	private JPopupMenu popup;
+	private JMenuItem deleteitem;
+	private JMenuItem rotateitem;
+	private JMenuItem updateOutlineitem;
+	private JMenuItem updateFillitem;
+	private OurShape selectedShape;
 
 	public DrawingPanel() {
 		popup = new JPopupMenu();
 		ActionListener menuListener = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				if (selected != null) {
+				if (selectedShape != null) {
 					if (DELETE_SHAPE.equals(event.getActionCommand())) {
 						// going to delete selected
 						if (JOptionPane.showOptionDialog(null, "Delete this shape?", "Delete Shape",
 								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null) != 1) {
-							boolean a = drawedShapes.remove(selected);
-							RectangularShape bounds = ((Selectable) selected).getBounds();
+							boolean a = drawedShapes.remove(selectedShape);
+							RectangularShape bounds = ((Selectable) selectedShape).getBounds();
 							repaint((int) bounds.getX(), (int) bounds.getY(), (int) bounds.getWidth() + 1,
 									(int) bounds.getHeight() + 1);
 						}
+					} else if (ROTATE_CLOCKWISE.equals(event.getActionCommand())) {
+						((Rotatable) selectedShape).rotateClockwise();
+
+					} else if (UPDATE_FILL_COLOR.equals(event.getActionCommand())) {
+						((FillColorable) selectedShape).setFillColor(currentFillColor);
+
+					} else if (UPDATE_OUTLINE_COLOR.equals(event.getActionCommand())) {
+						((OutlineColorable) selectedShape).setOutlineColor(currentOutlineColor);
+
 					}
-					selected = null;
+					RectangularShape bounds = ((Selectable) selectedShape).getBounds();
+					repaint((int) bounds.getX(), (int) bounds.getY(), (int) bounds.getWidth() + 1,
+							(int) bounds.getHeight() + 1);
+					selectedShape = null;
 				}
 				System.out.println("Popup menu item [" + event.getActionCommand() + "] was pressed.");
 			}
 		};
 
-		popup.add(deleteitem = new JMenuItem(DELETE_SHAPE));
+		updateOutlineitem = new JMenuItem(UPDATE_OUTLINE_COLOR);
+		updateOutlineitem.setHorizontalTextPosition(JMenuItem.RIGHT);
+		popup.add(updateOutlineitem);
+		updateOutlineitem.addActionListener(menuListener);
+
+		updateFillitem = new JMenuItem(UPDATE_FILL_COLOR);
+		updateFillitem.setHorizontalTextPosition(JMenuItem.RIGHT);
+		popup.add(updateFillitem);
+		updateFillitem.addActionListener(menuListener);
+
+		deleteitem = new JMenuItem(DELETE_SHAPE);
 		deleteitem.setHorizontalTextPosition(JMenuItem.RIGHT);
+		popup.add(deleteitem);
 		deleteitem.addActionListener(menuListener);
+
+		popup.add(rotateitem = new JMenuItem(ROTATE_CLOCKWISE));
+		rotateitem.setHorizontalTextPosition(JMenuItem.RIGHT);
+		rotateitem.addActionListener(menuListener);
 
 		popup.addSeparator();
 
@@ -271,6 +299,16 @@ class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 		// popup.addPopupMenuListener(new PopupPrintListener());
 
 		addMouseListener(this);
+	}
+
+	public void setCurrentOutlineColor(Color newColor) {
+		currentOutlineColor = newColor;
+
+	}
+
+	public void setCurrentFillColor(Color newColor) {
+		currentFillColor = newColor;
+
 	}
 
 	private static final int MIN_DISTANCE_TO_REDRAW = 5;
@@ -326,24 +364,39 @@ class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 
 	private void checkShowpopup(MouseEvent e) {
 		if (e.isPopupTrigger()) {
-			selected = null;
+			selectedShape = null;
 
 			for (Iterator iterator = drawedShapes.iterator(); iterator.hasNext();) {
 				OurShape ourShape = (OurShape) iterator.next();
 				if (ourShape instanceof Selectable) {
 
 					if (((Selectable) ourShape).getBounds().contains(e.getPoint())) {
-						selected = ourShape;
+						selectedShape = ourShape;
 						break;
 					}
 				}
 			}
 
-			if (selected != null) {
-				if (selected instanceof Erasable) {
+			if (selectedShape != null) {
+				if (selectedShape instanceof OutlineColorable) {
+					updateOutlineitem.setEnabled(true);
+				} else {
+					updateOutlineitem.setEnabled(false);
+				}
+				if (selectedShape instanceof FillColorable) {
+					updateFillitem.setEnabled(true);
+				} else {
+					updateFillitem.setEnabled(false);
+				}
+				if (selectedShape instanceof Erasable) {
 					deleteitem.setEnabled(true);
 				} else {
 					deleteitem.setEnabled(false);
+				}
+				if (selectedShape instanceof Rotatable) {
+					rotateitem.setEnabled(true);
+				} else {
+					rotateitem.setEnabled(false);
 				}
 				popup.show(DrawingPanel.this, e.getX(), e.getY());
 			}
