@@ -2,8 +2,12 @@ package edu.uol.drawing.shapes;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Point;
-
+/**
+ * A shape that is an arc
+ * 
+ * @author coutinho
+ *
+ */
 public class OurArc extends OpenedShape {
 
 	public OurArc(Color outline) {

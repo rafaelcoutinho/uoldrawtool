@@ -11,6 +11,12 @@ import edu.uol.drawing.shapes.OurRectangle;
 import edu.uol.drawing.shapes.OurRoundRectangle;
 import edu.uol.drawing.shapes.OurShape;
 
+/**
+ * Factory class for creating a shape
+ * 
+ * @author coutinho
+ *
+ */
 public abstract class ShapeFactory {
 	public enum ShapeTypes {
 		Line(OurLine.class), Arc(OurArc.class), Rectangle(OurRectangle.class), RoundedRectangle(

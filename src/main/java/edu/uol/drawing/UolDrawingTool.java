@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JFrame;
@@ -43,14 +42,21 @@ import edu.uol.drawing.shapes.OutlineColorable;
 import edu.uol.drawing.shapes.Rotatable;
 import edu.uol.drawing.shapes.Selectable;
 
+/**
+ * JFrame with the drawing pane. It also packs the top menu and the toolbar
+ * 
+ * @author coutinho
+ *
+ */
 public class UolDrawingTool extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private static final String EXIT_MENU_LABEL = "Exit";
 	private static final String SET_OUTLINE_COLOR_MENU_LABEL = "Set Outline Color...";
 	private static final String SET_FILL_COLOR_MENU_LABEL = "Set Fill Color...";
-
-	private static final String FILL_COLOR_LABEL = "Fill Color";
-	private static final String OUTLINE_COLOR_LABEL = "Outline Color";
 
 	private DrawingPanel panel;
 	private Color fillColor = Color.GREEN;
@@ -62,24 +68,16 @@ public class UolDrawingTool extends JFrame {
 	private JToolBar colorToolBar;
 
 	public UolDrawingTool() {
-		// set frame's title
-		super("UolDrawingTool");
-		// add menu
+		super("UolDrawingTool - Chambers and Coutinho");
 		addMenu();
-		// add drawing panel
 		addPanel();
-
-		// add toolbar
 		addToolBar();
 
 		// add window listener
 		this.addWindowListener(new WindowHandler());
-		// set frame size
 		this.setSize(600, 600);
-		// center on screen
 		this.setLocationRelativeTo(null);
 
-		// make this frame visible
 		this.setVisible(true);
 	}
 
@@ -87,12 +85,31 @@ public class UolDrawingTool extends JFrame {
 		this.fillColor = color;
 
 		// set button color too.
-		fillColorButton.setBackground(color);
+		updateColorButton(fillColorButton, color);
+	}
+
+	private void updateColorButton(JButton btn, Color color) {
+		btn.setBackground(color);
+		if (isColorDark(color)) {
+			btn.setForeground(Color.WHITE);
+		} else {
+			btn.setForeground(Color.BLACK);
+		}
+	}
+
+	public boolean isColorDark(Color color) {
+
+		double darkness = 1 - (0.299 * color.getRed() + 0.587 * color.getGreen() + 0.114 * color.getBlue()) / 255;
+		if (darkness < 0.5) {
+			return false; // It's a light color
+		} else {
+			return true; // It's a dark color
+		}
 	}
 
 	private void setOutlineColor(Color color) {
 		this.outlineColor = color;
-		outlineColorButton.setBackground(color);
+		updateColorButton(outlineColorButton, color);
 	}
 
 	private void addToolBar() {
@@ -242,6 +259,9 @@ class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 
 	public DrawingPanel() {
 		popup = new JPopupMenu();
+		/**
+		 * Action Listener for the popup menu. It handles the actions made to the shapes
+		 */
 		ActionListener menuListener = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				if (selectedShape != null) {
@@ -255,7 +275,9 @@ class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 									(int) bounds.getHeight() + 1);
 						}
 					} else if (ROTATE_CLOCKWISE.equals(event.getActionCommand())) {
+
 						((Rotatable) selectedShape).rotateClockwise();
+						repaint();// repaint the rotated section
 
 					} else if (UPDATE_FILL_COLOR.equals(event.getActionCommand())) {
 						((FillColorable) selectedShape).setFillColor(currentFillColor);
@@ -269,7 +291,6 @@ class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 							(int) bounds.getHeight() + 1);
 					selectedShape = null;
 				}
-				System.out.println("Popup menu item [" + event.getActionCommand() + "] was pressed.");
 			}
 		};
 
@@ -428,8 +449,7 @@ class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 				if (currentShape != null) {
 					currentShape.updateSize(lastDraggedPoint);
 				}
-				// TODO repaint only the boundary of the current shape
-				repaint();// watch out, repaint is done in separate thread
+				repaint();// watch out, repaint may be heavy
 
 			}
 
@@ -441,4 +461,4 @@ class DrawingPanel extends Panel implements MouseListener, MouseMotionListener {
 	public void mouseMoved(MouseEvent e) {
 		// no need, only draw when mouse is dragged
 	}
-}//
+}

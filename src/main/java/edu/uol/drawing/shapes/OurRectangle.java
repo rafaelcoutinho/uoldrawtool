@@ -5,11 +5,14 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Path2D;
 import java.awt.geom.RectangularShape;
 
+/**
+ * A shape that is a rectangle. It implements rotation
+ * 
+ * @author coutinho
+ *
+ */
 public class OurRectangle extends ClosedShape implements Selectable, Rotatable {
 
 	private double angle;
@@ -19,17 +22,26 @@ public class OurRectangle extends ClosedShape implements Selectable, Rotatable {
 	}
 
 	protected void drawFilledshape(Graphics g, Point topLeft, int width, int height) {
-		g.fillRect(getTopLeft().x, getTopLeft().y, width, height);
 
+		Graphics2D g2d = rotateGraphics(g, topLeft, width, height, angle);
+		g2d.fillRect(getTopLeft().x, getTopLeft().y, width, height);
+		rotateGraphics(g, topLeft, width, height, -angle);
 	}
 
 	protected void drawOutline(Graphics g, Point topLeft, int width, int height) {
-		Graphics2D g2d = (Graphics2D) g;
-		double centerX = getTopLeft().getX() + getWidth() / 2;
-		double centerY = getTopLeft().getY() + getHeight() / 2;
-		g2d.rotate(Math.toRadians(angle), centerX, centerY);
+		Graphics2D g2d = rotateGraphics(g, topLeft, width, height, angle);
 		g2d.drawRect(getTopLeft().x, getTopLeft().y, width, height);
-		g2d.rotate(Math.toRadians(-angle), centerX, centerY);
+		rotateGraphics(g, topLeft, width, height, -angle);
+	}
+
+	private Graphics2D rotateGraphics(Graphics g, Point topLeft, int width, int height, double toAngle) {
+
+		Graphics2D g2d = (Graphics2D) g;
+		double centerX = topLeft.getX() + width / 2;
+		double centerY = topLeft.getY() + height / 2;
+		g2d.rotate(Math.toRadians(toAngle), centerX, centerY);
+		return g2d;
+
 	}
 
 	@Override
@@ -42,11 +54,6 @@ public class OurRectangle extends ClosedShape implements Selectable, Rotatable {
 	@Override
 	public void rotateClockwise() {
 		angle += 45;
-	}
-
-	@Override
-	public void rotateCounterClockwise() {
-		angle -= 45;
 	}
 
 }

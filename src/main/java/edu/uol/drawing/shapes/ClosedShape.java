@@ -3,9 +3,13 @@ package edu.uol.drawing.shapes;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.geom.RectangularShape;
 
+/**
+ * Abstract class for shapes that can be filled and are closed circuit
+ * 
+ * @author coutinho
+ *
+ */
 public abstract class ClosedShape implements OurShape, OutlineColorable, FillColorable {
 	protected Color outLineColor;
 	protected Color fillColor;

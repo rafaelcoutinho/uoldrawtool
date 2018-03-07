@@ -2,8 +2,13 @@ package edu.uol.drawing.shapes;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.geom.RectangularShape;
 
+/**
+ * A shape that is a line
+ * 
+ * @author coutinho
+ *
+ */
 public class OurLine extends OpenedShape {
 
 	public OurLine(Color outline) {

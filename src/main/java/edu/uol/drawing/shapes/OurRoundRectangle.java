@@ -6,6 +6,12 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.RectangularShape;
 
+/**
+ * A rectangle with rounded corners. It can be erased
+ * 
+ * @author coutinho
+ *
+ */
 public class OurRoundRectangle extends ClosedShape implements Selectable, Erasable {
 
 	public OurRoundRectangle(Color outline, Color fillcolor) {

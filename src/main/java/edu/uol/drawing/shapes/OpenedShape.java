@@ -4,6 +4,12 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 
+/**
+ * Shapes that cannot be filled because they are open circuit shapes.
+ * 
+ * @author coutinho
+ *
+ */
 public abstract class OpenedShape implements OurShape, OutlineColorable {
 	protected Color outLineColor;
 	protected Point from;
